@@ -155,7 +155,7 @@ export default function SettingsPage({ settings, onUpdateSettings }: SettingsPag
                 </span>
               ) : (
                 <span className="text-red-600 flex items-center gap-1">
-                  ❌ API密钥格式错误，应以 "sk-or-" 开头
+                  ❌ API密钥格式错误，应以 &ldquo;sk-or-&rdquo; 开头
                 </span>
               )}
             </div>
@@ -212,7 +212,7 @@ export default function SettingsPage({ settings, onUpdateSettings }: SettingsPag
           <h3 className="text-lg font-semibold mb-2 text-orange-600">常见问题解决</h3>
           <div className="text-sm text-muted-foreground space-y-2">
             <p><strong>HTTP 401错误：</strong> 通常表示API密钥无效或格式错误</p>
-            <p><strong>API密钥格式：</strong> OpenRouter密钥应以 "sk-or-" 开头</p>
+            <p><strong>API密钥格式：</strong> OpenRouter密钥应以 &ldquo;sk-or-&rdquo; 开头</p>
             <p><strong>余额不足：</strong> 请检查OpenRouter账户余额</p>
             <p><strong>网络问题：</strong> 请检查网络连接和防火墙设置</p>
           </div>

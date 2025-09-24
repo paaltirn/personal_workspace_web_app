@@ -9,7 +9,7 @@ import TodoItem from './TodoItem';
 import AddTodoForm from './AddTodoForm';
 
 export default function TodoList() {
-  const [todos, setTodos, todosInitialized] = useLocalStorage<Todo[]>('todos', []);
+  const [todos, setTodos] = useLocalStorage<Todo[]>('todos', []);
   const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
   const [sortBy, setSortBy] = useState<'date' | 'priority' | 'title'>('date');
 

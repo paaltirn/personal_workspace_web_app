@@ -26,7 +26,7 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
   isOpen,
   onClose,
   project,
-  tasks
+  tasks: initialTasks
 }) => {
   const [insights, setInsights] = useState<AIInsight[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -175,24 +175,24 @@ const AIAnalysisModal: React.FC<AIAnalysisModalProps> = ({
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div>
                       <span className="text-gray-500">总任务数</span>
-                      <p className="font-medium">{tasks.length}</p>
+                      <p className="font-medium">{initialTasks.length}</p>
                     </div>
                     <div>
                       <span className="text-gray-500">已完成</span>
                       <p className="font-medium text-green-600">
-                        {tasks.filter(t => t.status === 'completed').length}
+                        {initialTasks.filter(t => t.status === 'completed').length}
                       </p>
                     </div>
                     <div>
                       <span className="text-gray-500">进行中</span>
                       <p className="font-medium text-blue-600">
-                        {tasks.filter(t => t.status === 'in_progress').length}
+                        {initialTasks.filter(t => t.status === 'in_progress').length}
                       </p>
                     </div>
                     <div>
                       <span className="text-gray-500">待开始</span>
                       <p className="font-medium text-gray-600">
-                        {tasks.filter(t => t.status === 'todo').length}
+                        {initialTasks.filter(t => t.status === 'todo').length}
                       </p>
                     </div>
                   </div>

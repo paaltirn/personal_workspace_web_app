@@ -1,9 +1,9 @@
 'use client';
 
 import { ProjectTask } from '@/types/project';
-import { Badge } from './ui/badge';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Edit, Trash2, Calendar, User, Flag } from 'lucide-react';
+import { MoreHorizontal, Trash2, Calendar, User, Flag } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,

@@ -3,11 +3,9 @@
 import React, { useState, useMemo } from 'react';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { Project, ProjectTask, ViewType, ProjectStats } from '@/types/project';
-import { Settings } from '@/types/note';
-import { Plus, FolderPlus, Search, Filter, BarChart3, List, Kanban, Calendar } from 'lucide-react';
+import { Plus, FolderPlus, Search, List, Kanban, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ProjectList from './ProjectList';
 import ProjectTaskList from './ProjectTaskList';
 import ProjectKanban from './ProjectKanban';
@@ -17,11 +15,7 @@ import AddProjectTaskModal from './AddProjectTaskModal';
 import AIAnalysisModal from './AIAnalysisModal';
 
 
-interface ProjectManagerProps {
-  settings: Settings;
-}
-
-export default function ProjectManager({ settings }: ProjectManagerProps) {
+export default function ProjectManager() {
   const [projects, setProjects] = useLocalStorage<Project[]>('projects', []);
   const [projectTasks, setProjectTasks] = useLocalStorage<ProjectTask[]>('projectTasks', []);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
@@ -108,7 +102,7 @@ export default function ProjectManager({ settings }: ProjectManagerProps) {
   }, [projects, searchQuery, filterStatus]);
 
   const filteredTasks = useMemo(() => {
-    let tasks = selectedProjectId
+    const tasks = selectedProjectId
       ? projectTasks.filter(task => task.projectId === selectedProjectId)
       : projectTasks;
 
@@ -320,7 +314,6 @@ export default function ProjectManager({ settings }: ProjectManagerProps) {
               {currentView === 'calendar' && (
                 <ProjectCalendar
                   tasks={filteredTasks}
-                  onUpdateTask={updateTask}
                 />
               )}
             </div>

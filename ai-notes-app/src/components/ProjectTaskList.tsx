@@ -99,7 +99,7 @@ export default function ProjectTaskList({
     return (
       <div className="text-center py-8">
         <div className="text-muted-foreground mb-2">暂无任务</div>
-        <p className="text-sm text-muted-foreground">点击"新建任务"开始添加任务</p>
+        <p className="text-sm text-muted-foreground">点击&ldquo;新建任务&rdquo;开始添加任务</p>
       </div>
     );
   }
