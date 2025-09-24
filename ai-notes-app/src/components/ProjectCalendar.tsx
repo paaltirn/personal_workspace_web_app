@@ -16,8 +16,6 @@ export default function ProjectCalendar({
 }: ProjectCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [selectedTask, setSelectedTask] = useState<ProjectTask | null>(null);
-  const [showTaskModal, setShowTaskModal] = useState(false);
 
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth();

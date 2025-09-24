@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -51,7 +51,7 @@ export default function Editor({ note, onUpdateNote, settings }: EditorProps) {
         handleAutoGenerateTags(debouncedContent);
       }
     }
-  }, [debouncedTitle, debouncedContent, debouncedTags, note, onUpdateNote, settings.openRouterApiKey, isGenerating]);
+  }, [debouncedTitle, debouncedContent, debouncedTags, note, onUpdateNote, settings.openRouterApiKey, isGenerating, handleAutoGenerateTags]);
 
   const handleGenerateTitle = async () => {
     if (!settings.openRouterApiKey || !content.trim()) return;
@@ -78,7 +78,7 @@ export default function Editor({ note, onUpdateNote, settings }: EditorProps) {
         })
       });
 
-      const data = await response.json();
+      const data: { choices?: { message: { content: string } }[] } = await response.json();
       if (data.choices && data.choices[0].message.content) {
         setTitle(data.choices[0].message.content.trim());
       }
@@ -114,7 +114,7 @@ export default function Editor({ note, onUpdateNote, settings }: EditorProps) {
         })
       });
 
-      const data = await response.json();
+      const data: { choices?: { message: { content: string } }[] } = await response.json();
       if (data.choices && data.choices[0].message.content) {
         const newTags = data.choices[0].message.content.trim().split(',').map((tag: string) => tag.trim());
         setTags(newTags.join(', '));
@@ -126,7 +126,7 @@ export default function Editor({ note, onUpdateNote, settings }: EditorProps) {
     }
   };
 
-  const handleAutoGenerateTags = async (contentText: string) => {
+  const handleAutoGenerateTags = useCallback(async (contentText: string) => {
     if (!settings.openRouterApiKey || !contentText.trim() || tags.trim()) return;
     
     try {
@@ -154,7 +154,7 @@ export default function Editor({ note, onUpdateNote, settings }: EditorProps) {
         throw new Error(`API请求失败: ${response.status}`);
       }
 
-      const data = await response.json();
+      const data: { choices?: { message: { content: string } }[] } = await response.json();
       if (data.choices && data.choices[0].message.content) {
         const newTags = data.choices[0].message.content.trim().split(',').map((tag: string) => tag.trim());
         setTags(newTags.join(', '));
@@ -162,7 +162,7 @@ export default function Editor({ note, onUpdateNote, settings }: EditorProps) {
     } catch (error) {
       console.error('自动生成标签失败:', error);
     }
-  };
+  }, [settings.openRouterApiKey, settings.aiModel, tags]);
 
   const handlePolishContent = async () => {
     if (!settings.openRouterApiKey || !content.trim()) return;
@@ -189,7 +189,7 @@ export default function Editor({ note, onUpdateNote, settings }: EditorProps) {
         })
       });
 
-      const data = await response.json();
+      const data: { choices?: { message: { content: string } }[] } = await response.json();
       if (data.choices && data.choices[0].message.content) {
         setPolishedContent(data.choices[0].message.content.trim());
         setShowPolishModal(true);
