@@ -210,7 +210,7 @@ export default function AppLayout() {
       ) : currentView === 'projects' ? (
         <div className="flex-1 relative z-20 p-4">
           <GlowingBorder className="h-full" glow={true}>
-            <ProjectManager settings={settings} />
+            <ProjectManager />
           </GlowingBorder>
         </div>
       ) : currentView === 'stats' ? (

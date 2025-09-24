@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Project, ProjectTask } from '@/types/project';
 import { Settings } from '@/types/note';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
@@ -38,6 +37,7 @@ interface RecommendationData {
 interface AssignmentData {
   taskId: string;
   suggestedAssignee: string;
+  reason?: string;
 }
 
 interface SummaryData {
@@ -115,7 +115,7 @@ const SuggestionCard = ({ suggestion, icon: Icon, colorClass, priority, index, o
         
         return { summary, details, rawData: jsonStr, hasStructuredData: true };
       }
-    } catch (e) {
+    } catch {
       // JSON解析失败，按普通文本处理
     }
     
@@ -131,7 +131,6 @@ const SuggestionCard = ({ suggestion, icon: Icon, colorClass, priority, index, o
   };
   
   const { summary, details, rawData, hasStructuredData } = parseContent(suggestion.content);
-  const shouldShowExpand = details.length > 100 || details.split('\n').length > 3;
   
   return (
     <motion.div
@@ -373,7 +372,24 @@ export default function ProjectAIAssistant({
     }
   };
 
-  const handleQuickAction = async (suggestion: AISuggestion) => {
+  const handleQuickAction = (suggestion: AISuggestion) => {
+    // 移除未使用的变量 e
+    if (suggestion.type === 'task_breakdown' && suggestion.data) {
+      const taskData = suggestion.data as TaskData[];
+      taskData.forEach(task => {
+        onAddTask({
+          projectId: project.id,
+          title: task.title || task.name || '新任务',
+          description: task.description || '',
+          status: 'todo',
+          priority: task.priority || 'medium',
+          assignee: task.assignee || '我',
+          dueDate: task.dueDate,
+          tags: task.tags || []
+        });
+      });
+    };
+
     switch (suggestion.type) {
       case 'task_breakdown':
         if (suggestion.actionable) {
@@ -593,8 +609,8 @@ export default function ProjectAIAssistant({
                 setSuggestions([{
                   type: 'smart_assignment',
                   title: '🎯 智能任务分配建议',
-                  content: parsedResponse.assignments.map((a: any) => 
-                    `任务：${tasks.find(t => t.id === a.taskId)?.title || '未知任务'} → 建议分配给：${a.suggestedAssignee}\n原因：${a.reason}`
+                  content: parsedResponse.assignments.map((a: AssignmentData) => 
+                    `任务：${tasks.find(t => t.id === a.taskId)?.title || '未知任务'} → 建议分配给：${a.suggestedAssignee}\n原因：${a.reason || '无原因说明'}`
                   ).join('\n\n'),
                   actionable: true,
                   confidence: 0.8,
@@ -606,11 +622,11 @@ export default function ProjectAIAssistant({
             case 'meeting_notes':
               if (parsedResponse.tasks && parsedResponse.tasks.length > 0) {
                 // 创建会议相关任务
-                parsedResponse.tasks.forEach((task: any) => {
+                parsedResponse.tasks.forEach((task: TaskData) => {
                   onAddTask({
                     projectId: project.id,
-                    title: task.title,
-                    description: task.description,
+                    title: task.title || '未命名任务',
+                    description: task.description || '',
                     status: 'todo',
                     priority: task.priority || 'medium',
                     assignee: task.assignee || '我',
@@ -698,33 +714,6 @@ export default function ProjectAIAssistant({
     if (confidence >= 0.8) return 'high';
     if (confidence >= 0.6) return 'medium';
     return 'low';
-  };
-
-  // 获取优先级配置
-  const getPriorityConfig = (priority: 'high' | 'medium' | 'low') => {
-    switch (priority) {
-      case 'high':
-        return {
-          color: 'text-red-600',
-          bgColor: 'bg-red-50 border-red-200',
-          icon: '🔥',
-          label: '高优先级'
-        };
-      case 'medium':
-        return {
-          color: 'text-yellow-600',
-          bgColor: 'bg-yellow-50 border-yellow-200',
-          icon: '⚡',
-          label: '中优先级'
-        };
-      case 'low':
-        return {
-          color: 'text-blue-600',
-          bgColor: 'bg-blue-50 border-blue-200',
-          icon: '💡',
-          label: '低优先级'
-        };
-    }
   };
 
   return (
@@ -886,7 +875,6 @@ export default function ProjectAIAssistant({
                   const Icon = getSuggestionIcon(suggestion.type);
                   const colorClass = getSuggestionColor(suggestion.type);
                   const priority = getPriorityFromConfidence(suggestion.confidence);
-                  const priorityConfig = getPriorityConfig(priority);
                   
                   return (
                     <SuggestionCard

@@ -52,10 +52,6 @@ export default function GlowingBorder({
     };
   }, [disabled]);
 
-  const gradientColors = variant === 'white' 
-    ? 'from-white via-gray-300 to-white'
-    : 'from-blue-500 via-purple-500 to-cyan-500';
-
   const glowStyle = {
     background: `conic-gradient(from ${mousePosition.x + mousePosition.y}deg at ${mousePosition.x}px ${mousePosition.y}px, 
       ${variant === 'white' ? '#ffffff, #e5e7eb, #ffffff' : '#3b82f6, #8b5cf6, #06b6d4, #10b981, #f59e0b'})`

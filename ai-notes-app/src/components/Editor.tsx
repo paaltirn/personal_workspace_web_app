@@ -28,6 +28,44 @@ export default function Editor({ note, onUpdateNote, settings }: EditorProps) {
   const debouncedContent = useDebounce(content, 500);
   const debouncedTags = useDebounce(tags, 500);
 
+  const handleAutoGenerateTags = useCallback(async (contentText: string) => {
+    if (!settings.openRouterApiKey || !contentText.trim() || tags.trim()) return;
+    
+    try {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${settings.openRouterApiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': window.location.origin,
+          'X-Title': 'Personal Workspace'
+        },
+        body: JSON.stringify({
+          model: settings.aiModel,
+          messages: [
+            {
+              role: 'user',
+              content: `根据以下内容提取3-5个关键词作为标签，用逗号分隔：\n\n${contentText}`
+            }
+          ],
+          max_tokens: 50
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`API请求失败: ${response.status}`);
+      }
+
+      const data: { choices?: { message: { content: string } }[] } = await response.json();
+      if (data.choices && data.choices[0].message.content) {
+        const newTags = data.choices[0].message.content.trim().split(',').map((tag: string) => tag.trim());
+        setTags(newTags.join(', '));
+      }
+    } catch (error) {
+      console.error('自动生成标签失败:', error);
+    }
+  }, [settings.openRouterApiKey, settings.aiModel, tags]);
+
   useEffect(() => {
     if (note) {
       setTitle(note.title);
@@ -125,44 +163,6 @@ export default function Editor({ note, onUpdateNote, settings }: EditorProps) {
       setIsGenerating(false);
     }
   };
-
-  const handleAutoGenerateTags = useCallback(async (contentText: string) => {
-    if (!settings.openRouterApiKey || !contentText.trim() || tags.trim()) return;
-    
-    try {
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${settings.openRouterApiKey}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': window.location.origin,
-          'X-Title': 'Personal Workspace'
-        },
-        body: JSON.stringify({
-          model: settings.aiModel,
-          messages: [
-            {
-              role: 'user',
-              content: `根据以下内容提取3-5个关键词作为标签，用逗号分隔：\n\n${contentText}`
-            }
-          ],
-          max_tokens: 50
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`API请求失败: ${response.status}`);
-      }
-
-      const data: { choices?: { message: { content: string } }[] } = await response.json();
-      if (data.choices && data.choices[0].message.content) {
-        const newTags = data.choices[0].message.content.trim().split(',').map((tag: string) => tag.trim());
-        setTags(newTags.join(', '));
-      }
-    } catch (error) {
-      console.error('自动生成标签失败:', error);
-    }
-  }, [settings.openRouterApiKey, settings.aiModel, tags]);
 
   const handlePolishContent = async () => {
     if (!settings.openRouterApiKey || !content.trim()) return;
