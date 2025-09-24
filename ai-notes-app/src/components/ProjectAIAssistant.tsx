@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, Brain, Target, TrendingUp, Lightbulb, Clock, FileText, Users, MessageSquare, CheckCircle, AlertCircle, Calendar, User, Tag } from 'lucide-react';
+import { Sparkles, Brain, Target, TrendingUp, Lightbulb, Clock, FileText, MessageSquare, CheckCircle, AlertCircle, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Typewriter from './Typewriter';
 
@@ -26,16 +26,15 @@ interface AISuggestion {
   content: string;
   actionable: boolean;
   confidence: number;
-  data?: any; // 用于存储额外的结构化数据
+  data?: unknown; // 用于存储额外的结构化数据
 }
 
 // 建议卡片组件
-const SuggestionCard = ({ suggestion, icon: Icon, colorClass, priority, priorityConfig, index, onQuickAction }: {
+const SuggestionCard = ({ suggestion, icon: Icon, colorClass, priority, index, onQuickAction }: {
   suggestion: AISuggestion;
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>;
   colorClass: string;
   priority: 'high' | 'medium' | 'low';
-  priorityConfig: any;
   index: number;
   onQuickAction: (suggestion: AISuggestion) => void;
 }) => {
@@ -853,7 +852,6 @@ export default function ProjectAIAssistant({
                       icon={Icon}
                       colorClass={colorClass}
                       priority={priority}
-                      priorityConfig={priorityConfig}
                       index={index}
                       onQuickAction={handleQuickAction}
                     />

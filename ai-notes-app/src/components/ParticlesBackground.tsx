@@ -22,7 +22,7 @@ export default function ParticlesBackground({ className }: ParticlesBackgroundPr
     });
   }, []);
 
-  const particlesLoaded = useCallback(async (container: any) => {
+  const particlesLoaded = useCallback(async (container: unknown) => {
     console.log('Particles loaded!', container);
   }, []);
 

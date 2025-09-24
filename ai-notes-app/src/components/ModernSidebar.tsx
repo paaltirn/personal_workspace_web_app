@@ -20,6 +20,8 @@ interface ModernSidebarProps {
   onViewChange: (view: 'notes' | 'todos' | 'chat' | 'stats' | 'settings' | 'pomodoro' | 'projects') => void;
 }
 
+type ViewType = 'notes' | 'todos' | 'chat' | 'stats' | 'settings' | 'pomodoro' | 'projects';
+
 const menuItems = [
   { id: 'notes', label: '笔记', icon: DocumentTextIcon },
   { id: 'projects', label: '项目管理', icon: FolderIcon },
@@ -116,7 +118,7 @@ export default function ModernSidebar({ currentView, onViewChange }: ModernSideb
           return (
             <motion.button
               key={item.id}
-              onClick={() => onViewChange(item.id as any)}
+              onClick={() => onViewChange(item.id as ViewType)}
               onMouseEnter={() => setHoveredItem(item.id)}
               onMouseLeave={() => setHoveredItem(null)}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group relative overflow-hidden ${
