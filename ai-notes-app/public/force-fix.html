@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>强制修复数据</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h1>强制修复数据中...</h1>
+    <p id="status">正在处理...</p>
+    <script>
+        const status = document.getElementById('status');
+        
+        try {
+            // 完全清空localStorage
+            localStorage.clear();
+            status.textContent = '已清空所有数据...';
+            
+            setTimeout(() => {
+                // 设置正确的项目数据
+                const projects = [
+                    {
+                        "id": "work-project-1",
+                        "name": "工作项目管理",
+                        "description": "管理日常工作任务和项目进度",
+                        "color": "#3b82f6",
+                        "status": "active",
+                        "createdAt": "2024-12-15T10:00:00.000Z",
+                        "updatedAt": "2025-01-15T10:00:00.000Z",
+                        "dueDate": "2025-03-15T10:00:00.000Z"
+                    },
+                    {
+                        "id": "learning-project-1",
+                        "name": "个人学习计划",
+                        "description": "技能提升和知识学习规划",
+                        "color": "#10b981",
+                        "status": "active",
+                        "createdAt": "2024-12-25T10:00:00.000Z",
+                        "updatedAt": "2025-01-15T10:00:00.000Z",
+                        "dueDate": "2025-04-15T10:00:00.000Z"
+                    }
+                ];
+                
+                const tasks = [
+                    {
+                        "id": "task-1",
+                        "projectId": "work-project-1",
+                        "title": "完成月度报告",
+                        "description": "整理本月工作成果和数据分析",
+                        "status": "in_progress",
+                        "priority": "high",
+                        "assignee": "我",
+                        "tags": ["报告", "月度"],
+                        "dueDate": "2025-01-22T10:00:00.000Z",
+                        "createdAt": "2025-01-01T10:00:00.000Z",
+                        "updatedAt": "2025-01-15T10:00:00.000Z"
+                    },
+                    {
+                        "id": "task-2",
+                        "projectId": "work-project-1",
+                        "title": "客户需求分析",
+                        "description": "分析新客户的具体需求和解决方案",
+                        "status": "todo",
+                        "priority": "high",
+                        "assignee": "我",
+                        "tags": ["客户", "需求"],
+                        "dueDate": "2025-01-25T10:00:00.000Z",
+                        "createdAt": "2025-01-05T10:00:00.000Z",
+                        "updatedAt": "2025-01-15T10:00:00.000Z"
+                    },
+                    {
+                        "id": "task-3",
+                        "projectId": "work-project-1",
+                        "title": "团队会议准备",
+                        "description": "准备下周团队会议的议程和材料",
+                        "status": "completed",
+                        "priority": "medium",
+                        "assignee": "我",
+                        "tags": ["会议", "团队"],
+                        "createdAt": "2025-01-03T10:00:00.000Z",
+                        "updatedAt": "2025-01-12T10:00:00.000Z"
+                    },
+                    {
+                        "id": "task-4",
+                        "projectId": "learning-project-1",
+                        "title": "JavaScript进阶学习",
+                        "description": "深入学习ES6+新特性和异步编程",
+                        "status": "in_progress",
+                        "priority": "high",
+                        "assignee": "我",
+                        "tags": ["学习", "JavaScript"],
+                        "dueDate": "2025-02-15T10:00:00.000Z",
+                        "createdAt": "2024-12-28T10:00:00.000Z",
+                        "updatedAt": "2025-01-15T10:00:00.000Z"
+                    },
+                    {
+                        "id": "task-5",
+                        "projectId": "learning-project-1",
+                        "title": "阅读技术书籍",
+                        "description": "每周阅读一本技术相关书籍",
+                        "status": "in_progress",
+                        "priority": "medium",
+                        "assignee": "我",
+                        "tags": ["阅读", "技术"],
+                        "dueDate": "2025-03-01T10:00:00.000Z",
+                        "createdAt": "2025-01-07T10:00:00.000Z",
+                        "updatedAt": "2025-01-15T10:00:00.000Z"
+                    },
+                    {
+                        "id": "task-6",
+                        "projectId": "learning-project-1",
+                        "title": "练习算法题",
+                        "description": "每天练习2-3道算法题提升编程能力",
+                        "status": "todo",
+                        "priority": "medium",
+                        "assignee": "我",
+                        "tags": ["算法", "练习"],
+                        "dueDate": "2025-03-15T10:00:00.000Z",
+                        "createdAt": "2025-01-10T10:00:00.000Z",
+                        "updatedAt": "2025-01-15T10:00:00.000Z"
+                    }
+                ];
+                
+                localStorage.setItem('projects', JSON.stringify(projects));
+                localStorage.setItem('projectTasks', JSON.stringify(tasks));
+                
+                status.textContent = '数据修复完成！3秒后跳转到主页...';
+                
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 3000);
+            }, 1000);
+            
+        } catch (error) {
+            status.textContent = '修复失败: ' + error.message;
+            console.error('修复失败:', error);
+        }
+    </script>
+</body>
+</html>

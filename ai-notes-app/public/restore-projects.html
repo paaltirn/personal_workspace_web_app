@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>恢复项目数据</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .danger {
+            background: #dc3545;
+        }
+        .danger:hover {
+            background: #c82333;
+        }
+        .success {
+            background: #28a745;
+        }
+        .success:hover {
+            background: #218838;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 项目数据恢复工具</h1>
+        
+        <div class="section">
+            <h3>📊 当前数据状态</h3>
+            <button onclick="checkCurrentData()">检查当前数据</button>
+            <div id="current-status"></div>
+        </div>
+        
+        <div class="section">
+            <h3>🔄 数据恢复选项</h3>
+            <button onclick="restoreSampleProjects()" class="success">恢复示例项目</button>
+            <button onclick="clearAllData()" class="danger">清空所有数据</button>
+            <div id="restore-status"></div>
+        </div>
+        
+        <div class="section">
+            <h3>💾 数据备份与导入</h3>
+            <button onclick="exportData()">导出当前数据</button>
+            <input type="file" id="import-file" accept=".json" style="display: none;" onchange="importData(event)">
+            <button onclick="document.getElementById('import-file').click()">导入数据</button>
+            <div id="backup-status"></div>
+        </div>
+        
+        <div class="section">
+            <h3>🔍 详细数据查看</h3>
+            <button onclick="showDetailedData()">显示详细数据</button>
+            <div id="detailed-data"></div>
+        </div>
+    </div>
+    
+    <script>
+        function showStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+        
+        function checkCurrentData() {
+            const projects = localStorage.getItem('projects');
+            const projectTasks = localStorage.getItem('projectTasks');
+            const notes = localStorage.getItem('notes');
+            
+            let status = '<h4>当前localStorage数据:</h4>';
+            
+            if (projects) {
+                try {
+                    const parsedProjects = JSON.parse(projects);
+                    status += `<p>✅ 项目数据: ${parsedProjects.length} 个项目</p>`;
+                } catch (e) {
+                    status += `<p>❌ 项目数据解析失败: ${e.message}</p>`;
+                }
+            } else {
+                status += '<p>⚠️ 没有找到项目数据</p>';
+            }
+            
+            if (projectTasks) {
+                try {
+                    const parsedTasks = JSON.parse(projectTasks);
+                    status += `<p>✅ 任务数据: ${parsedTasks.length} 个任务</p>`;
+                } catch (e) {
+                    status += `<p>❌ 任务数据解析失败: ${e.message}</p>`;
+                }
+            } else {
+                status += '<p>⚠️ 没有找到任务数据</p>';
+            }
+            
+            if (notes) {
+                try {
+                    const parsedNotes = JSON.parse(notes);
+                    status += `<p>✅ 笔记数据: ${parsedNotes.length} 个笔记</p>`;
+                } catch (e) {
+                    status += `<p>❌ 笔记数据解析失败: ${e.message}</p>`;
+                }
+            } else {
+                status += '<p>⚠️ 没有找到笔记数据</p>';
+            }
+            
+            document.getElementById('current-status').innerHTML = status;
+        }
+        
+        function restoreSampleProjects() {
+            const sampleProjects = [
+                {
+                    id: 'project-1',
+                    name: '个人网站开发',
+                    description: '开发个人作品展示网站',
+                    color: '#3b82f6',
+                    status: 'active',
+                    createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+                },
+                {
+                    id: 'project-2',
+                    name: '学习计划管理',
+                    description: '制定和跟踪个人学习计划',
+                    color: '#10b981',
+                    status: 'active',
+                    createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    dueDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString()
+                }
+            ];
+            
+            const sampleTasks = [
+                {
+                    id: 'task-1',
+                    projectId: 'project-1',
+                    title: '设计网站原型',
+                    description: '使用Figma设计网站的整体布局和界面',
+                    status: 'completed',
+                    priority: 'high',
+                    assignee: '我',
+                    tags: ['设计', 'UI/UX'],
+                    createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+                    updatedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+                },
+                {
+                    id: 'task-2',
+                    projectId: 'project-1',
+                    title: '前端开发',
+                    description: '使用React开发网站前端',
+                    status: 'in_progress',
+                    priority: 'high',
+                    assignee: '我',
+                    dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+                    tags: ['开发', 'React'],
+                    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+                    updatedAt: new Date().toISOString()
+                },
+                {
+                    id: 'task-3',
+                    projectId: 'project-2',
+                    title: '制定学习目标',
+                    description: '明确本季度的学习目标和重点',
+                    status: 'todo',
+                    priority: 'medium',
+                    assignee: '我',
+                    dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                    tags: ['规划'],
+                    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+                    updatedAt: new Date().toISOString()
+                }
+            ];
+            
+            try {
+                localStorage.setItem('projects', JSON.stringify(sampleProjects));
+                localStorage.setItem('projectTasks', JSON.stringify(sampleTasks));
+                showStatus('restore-status', '✅ 示例项目数据已恢复！请刷新主页面查看。', 'success');
+            } catch (e) {
+                showStatus('restore-status', `❌ 恢复失败: ${e.message}`, 'error');
+            }
+        }
+        
+        function clearAllData() {
+            if (confirm('确定要清空所有数据吗？此操作不可撤销！')) {
+                localStorage.removeItem('projects');
+                localStorage.removeItem('projectTasks');
+                localStorage.removeItem('notes');
+                localStorage.removeItem('settings');
+                showStatus('restore-status', '🗑️ 所有数据已清空', 'info');
+            }
+        }
+        
+        function exportData() {
+            const data = {
+                projects: localStorage.getItem('projects'),
+                projectTasks: localStorage.getItem('projectTasks'),
+                notes: localStorage.getItem('notes'),
+                settings: localStorage.getItem('settings'),
+                exportDate: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ai-notes-backup-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showStatus('backup-status', '✅ 数据已导出到下载文件夹', 'success');
+        }
+        
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (data.projects) localStorage.setItem('projects', data.projects);
+                    if (data.projectTasks) localStorage.setItem('projectTasks', data.projectTasks);
+                    if (data.notes) localStorage.setItem('notes', data.notes);
+                    if (data.settings) localStorage.setItem('settings', data.settings);
+                    
+                    showStatus('backup-status', '✅ 数据导入成功！请刷新主页面查看。', 'success');
+                } catch (error) {
+                    showStatus('backup-status', `❌ 导入失败: ${error.message}`, 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        function showDetailedData() {
+            const projects = localStorage.getItem('projects');
+            const projectTasks = localStorage.getItem('projectTasks');
+            
+            let html = '<h4>详细数据内容:</h4>';
+            
+            if (projects) {
+                html += '<h5>项目数据:</h5>';
+                html += `<pre>${projects}</pre>`;
+            }
+            
+            if (projectTasks) {
+                html += '<h5>任务数据:</h5>';
+                html += `<pre>${projectTasks}</pre>`;
+            }
+            
+            document.getElementById('detailed-data').innerHTML = html;
+        }
+        
+        // 页面加载时自动检查数据
+        window.onload = function() {
+            checkCurrentData();
+        };
+    </script>
+</body>
+</html>
