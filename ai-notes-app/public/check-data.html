@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>检查数据</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h1>当前数据检查</h1>
+    <div id="output"></div>
+    <script>
+        const output = document.getElementById('output');
+        
+        const projects = localStorage.getItem('projects');
+        const tasks = localStorage.getItem('projectTasks');
+        
+        output.innerHTML = `
+            <h2>项目数据:</h2>
+            <pre>${projects || '无数据'}</pre>
+            <h2>任务数据:</h2>
+            <pre>${tasks || '无数据'}</pre>
+        `;
+        
+        console.log('Projects:', projects);
+        console.log('Tasks:', tasks);
+    </script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>修复数据</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h1>正在修复数据...</h1>
+    <script>
+        // 清除现有数据
+        localStorage.removeItem('projects');
+        localStorage.removeItem('projectTasks');
+        
+        // 添加正确的项目数据
+        const correctProjects = [
+            {
+                id: 'user-project-1',
+                name: '工作项目管理',
+                description: '管理日常工作任务和项目进度',
+                color: '#3b82f6',
+                status: 'active',
+                createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date().toISOString(),
+                dueDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString()
+            },
+            {
+                id: 'user-project-2',
+                name: '个人学习计划',
+                description: '技能提升和知识学习规划',
+                color: '#10b981',
+                status: 'active',
+                createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date().toISOString(),
+                dueDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString()
+            }
+        ];
+        
+        const correctTasks = [
+            {
+                id: 'user-task-1',
+                projectId: 'user-project-1',
+                title: '完成月度报告',
+                description: '整理本月工作成果和数据分析',
+                status: 'in_progress',
+                priority: 'high',
+                assignee: '我',
+                tags: ['报告', '月度'],
+                dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: 'user-task-2',
+                projectId: 'user-project-1',
+                title: '客户需求分析',
+                description: '分析新客户的具体需求和解决方案',
+                status: 'todo',
+                priority: 'high',
+                assignee: '我',
+                tags: ['客户', '需求'],
+                dueDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: 'user-task-3',
+                projectId: 'user-project-1',
+                title: '团队会议准备',
+                description: '准备下周团队会议的议程和材料',
+                status: 'completed',
+                priority: 'medium',
+                assignee: '我',
+                tags: ['会议', '团队'],
+                createdAt: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+            },
+            {
+                id: 'user-task-4',
+                projectId: 'user-project-2',
+                title: 'JavaScript进阶学习',
+                description: '深入学习ES6+新特性和异步编程',
+                status: 'in_progress',
+                priority: 'high',
+                assignee: '我',
+                tags: ['学习', 'JavaScript'],
+                dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(Date.now() - 18 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: 'user-task-5',
+                projectId: 'user-project-2',
+                title: '阅读技术书籍',
+                description: '每周阅读一本技术相关书籍',
+                status: 'in_progress',
+                priority: 'medium',
+                assignee: '我',
+                tags: ['阅读', '技术'],
+                dueDate: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date().toISOString()
+            },
+            {
+                id: 'user-task-6',
+                projectId: 'user-project-2',
+                title: '练习算法题',
+                description: '每天练习2-3道算法题提升编程能力',
+                status: 'todo',
+                priority: 'medium',
+                assignee: '我',
+                tags: ['算法', '练习'],
+                dueDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
+                createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+                updatedAt: new Date().toISOString()
+            }
+        ];
+        
+        localStorage.setItem('projects', JSON.stringify(correctProjects));
+        localStorage.setItem('projectTasks', JSON.stringify(correctTasks));
+        
+        alert('数据已修复！现在跳转到主页面...');
+        window.location.href = '/';
+    </script>
+</body>
+</html>

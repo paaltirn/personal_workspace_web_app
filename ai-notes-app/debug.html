@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug LocalStorage</title>
+</head>
+<body>
+    <h1>Debug Information</h1>
+    <div id="debug-info"></div>
+    
+    <script>
+        function debugLocalStorage() {
+            const debugInfo = document.getElementById('debug-info');
+            let html = '<h2>LocalStorage Contents:</h2>';
+            
+            // 检查项目数据
+            const projects = localStorage.getItem('projects');
+            const projectTasks = localStorage.getItem('projectTasks');
+            const settings = localStorage.getItem('settings');
+            
+            html += '<h3>Projects:</h3>';
+            if (projects) {
+                try {
+                    const parsedProjects = JSON.parse(projects);
+                    html += `<pre>${JSON.stringify(parsedProjects, null, 2)}</pre>`;
+                    html += `<p>项目数量: ${parsedProjects.length}</p>`;
+                } catch (e) {
+                    html += `<p style="color: red;">解析项目数据失败: ${e.message}</p>`;
+                }
+            } else {
+                html += '<p style="color: orange;">没有找到项目数据</p>';
+            }
+            
+            html += '<h3>Project Tasks:</h3>';
+            if (projectTasks) {
+                try {
+                    const parsedTasks = JSON.parse(projectTasks);
+                    html += `<pre>${JSON.stringify(parsedTasks, null, 2)}</pre>`;
+                    html += `<p>任务数量: ${parsedTasks.length}</p>`;
+                } catch (e) {
+                    html += `<p style="color: red;">解析任务数据失败: ${e.message}</p>`;
+                }
+            } else {
+                html += '<p style="color: orange;">没有找到任务数据</p>';
+            }
+            
+            html += '<h3>Settings:</h3>';
+            if (settings) {
+                try {
+                    const parsedSettings = JSON.parse(settings);
+                    // 隐藏API密钥的敏感信息
+                    const safeSettings = { ...parsedSettings };
+                    if (safeSettings.openRouterApiKey) {
+                        safeSettings.openRouterApiKey = safeSettings.openRouterApiKey.substring(0, 10) + '...';
+                    }
+                    html += `<pre>${JSON.stringify(safeSettings, null, 2)}</pre>`;
+                } catch (e) {
+                    html += `<p style="color: red;">解析设置数据失败: ${e.message}</p>`;
+                }
+            } else {
+                html += '<p style="color: orange;">没有找到设置数据</p>';
+            }
+            
+            html += '<h3>Console Errors:</h3>';
+            html += '<p>请打开浏览器开发者工具查看控制台错误信息</p>';
+            
+            debugInfo.innerHTML = html;
+        }
+        
+        // 页面加载后执行调试
+        window.onload = debugLocalStorage;
+        
+        // 添加刷新按钮
+        document.addEventListener('DOMContentLoaded', function() {
+            const button = document.createElement('button');
+            button.textContent = '刷新调试信息';
+            button.onclick = debugLocalStorage;
+            document.body.insertBefore(button, document.getElementById('debug-info'));
+        });
+    </script>
+</body>
+</html>

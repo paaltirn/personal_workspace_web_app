@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>恢复您的项目数据</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+        }
+        .status {
+            font-size: 1.5em;
+            margin: 20px 0;
+        }
+        .emoji {
+            font-size: 4em;
+            margin-bottom: 20px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <span class="emoji" id="emoji">⏳</span>
+        <div class="status" id="status">正在恢复您的项目数据...</div>
+    </div>
+    
+    <script src="/restore-data.js"></script>
+    
+    <script>
+        // 监听恢复完成
+        setTimeout(() => {
+            document.getElementById('emoji').textContent = '✅';
+            document.getElementById('status').innerHTML = '您的项目数据已恢复！<br><br>• 工作项目管理<br>• 个人学习计划<br><br>3秒后自动跳转到主页...';
+            
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 3000);
+        }, 1000);
+    </script>
+</body>
+</html>
