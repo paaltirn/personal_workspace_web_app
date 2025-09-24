@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, Brain, Target, TrendingUp, Lightbulb, Clock, FileText, MessageSquare, CheckCircle, AlertCircle, Calendar } from 'lucide-react';
+import { Sparkles, Brain, Target, TrendingUp, Lightbulb, Clock, FileText, MessageSquare } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Typewriter from './Typewriter';
 
@@ -18,6 +18,49 @@ interface ProjectAIAssistantProps {
   settings: Settings;
   onAddTask: (task: Omit<ProjectTask, 'id' | 'createdAt' | 'updatedAt'>) => void;
   onUpdateTask: (id: string, updates: Partial<ProjectTask>) => void;
+}
+
+interface TaskData {
+  title?: string;
+  name?: string;
+  description?: string;
+  priority?: 'low' | 'medium' | 'high';
+  assignee?: string;
+  dueDate?: string;
+  tags?: string[];
+}
+
+interface RecommendationData {
+  title?: string;
+  description?: string;
+}
+
+interface AssignmentData {
+  taskId: string;
+  suggestedAssignee: string;
+}
+
+interface SummaryData {
+  overallProgress: string;
+  completedTasks?: string[];
+  pendingTasks?: string[];
+  recommendations?: string[];
+}
+
+interface MeetingAnalysisData {
+  meetingDate: string;
+  participants: string[];
+  keyDecisions: string[];
+  actionItems: string[];
+}
+
+interface ParsedResponse {
+  actionType: string;
+  tasks?: TaskData[];
+  assignments?: AssignmentData[];
+  summary?: SummaryData;
+  meetingAnalysis?: MeetingAnalysisData;
+  response?: string;
 }
 
 interface AISuggestion {
@@ -57,7 +100,7 @@ const SuggestionCard = ({ suggestion, icon: Icon, colorClass, priority, index, o
         
         if (parsed.tasks && Array.isArray(parsed.tasks)) {
           summary = `发现 ${parsed.tasks.length} 个可优化任务`;
-          details = parsed.tasks.map((task: any, i: number) => 
+          details = parsed.tasks.map((task: TaskData, i: number) => 
             `${i + 1}. ${task.title || task.name || '未命名任务'}`
           ).join('\n');
         } else if (parsed.summary) {
@@ -65,7 +108,7 @@ const SuggestionCard = ({ suggestion, icon: Icon, colorClass, priority, index, o
           details = parsed.summary;
         } else if (parsed.recommendations && Array.isArray(parsed.recommendations)) {
           summary = `${parsed.recommendations.length} 条优化建议`;
-          details = parsed.recommendations.map((rec: any, i: number) => 
+          details = parsed.recommendations.map((rec: RecommendationData, i: number) => 
             `${i + 1}. ${rec.title || rec.description || rec}`
           ).join('\n');
         }
@@ -350,7 +393,7 @@ export default function ProjectAIAssistant({
       case 'smart_assignment':
         if (suggestion.actionable && suggestion.data) {
           // 应用智能任务分配
-          suggestion.data.forEach((assignment: any) => {
+          (suggestion.data as AssignmentData[]).forEach((assignment: AssignmentData) => {
             const task = tasks.find(t => t.id === assignment.taskId);
             if (task) {
               onUpdateTask(task.id, {
@@ -364,7 +407,7 @@ export default function ProjectAIAssistant({
             {
               type: 'workflow_improvement',
               title: '✅ 任务分配已更新',
-              content: `已成功更新 ${suggestion.data.length} 个任务的分配情况`,
+              content: `已成功更新 ${(suggestion.data as AssignmentData[]).length} 个任务的分配情况`,
               actionable: false,
               confidence: 1.0
             },
@@ -502,17 +545,17 @@ export default function ProjectAIAssistant({
       const aiResponse = data.choices[0]?.message?.content;
       
       try {
-         const parsedResponse = JSON.parse(aiResponse);
+         const parsedResponse: ParsedResponse = JSON.parse(aiResponse);
          
          switch (parsedResponse.actionType) {
            case 'task_creation':
              if (parsedResponse.tasks && parsedResponse.tasks.length > 0) {
                // 创建任务
-               parsedResponse.tasks.forEach((task: any) => {
+               parsedResponse.tasks.forEach((task: TaskData) => {
                  onAddTask({
                    projectId: project.id,
-                   title: task.title,
-                   description: task.description,
+                   title: task.title || '未命名任务',
+                   description: task.description || '',
                    status: 'todo',
                    priority: task.priority || 'medium',
                    assignee: task.assignee || '我',
@@ -524,7 +567,7 @@ export default function ProjectAIAssistant({
                setSuggestions([{
                  type: 'task_breakdown',
                  title: '✅ 任务创建成功',
-                 content: `已成功创建 ${parsedResponse.tasks.length} 个任务：${parsedResponse.tasks.map((t: any) => t.title).join('、')}`,
+                 content: `已成功创建 ${parsedResponse.tasks.length} 个任务：${parsedResponse.tasks.map((t: TaskData) => t.title).join('、')}`,
                  actionable: false,
                  confidence: 1.0
                }]);

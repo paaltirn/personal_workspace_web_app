@@ -6,9 +6,6 @@ interface GlowingBorderProps {
   children: React.ReactNode;
   className?: string;
   blur?: number;
-  inactiveZone?: number;
-  proximity?: number;
-  spread?: number;
   variant?: 'default' | 'white';
   glow?: boolean;
   disabled?: boolean;
@@ -20,9 +17,6 @@ export default function GlowingBorder({
   children,
   className = '',
   blur = 0,
-  inactiveZone = 0.7,
-  proximity = 0,
-  spread = 20,
   variant = 'default',
   glow = false,
   disabled = false,
