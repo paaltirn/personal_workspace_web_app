@@ -142,7 +142,13 @@ export function useSupabaseChat() {
           console.log('Chat session change received:', payload);
           
           if (payload.eventType === 'INSERT') {
-            const newSession = payload.new as any;
+            const newSession = payload.new as {
+              id: string;
+              title: string;
+              model: string;
+              created_at: string;
+              updated_at: string;
+            };
             const session: ChatSession = {
               id: newSession.id,
               title: newSession.title,
@@ -156,14 +162,21 @@ export function useSupabaseChat() {
               return [session, ...prev];
             });
           } else if (payload.eventType === 'UPDATE') {
-            const updatedSession = payload.new as any;
+            const updatedSession = payload.new as {
+              id: string;
+              title: string;
+              model: string;
+              updated_at: string;
+            };
             setSessions(prev => prev.map(s => 
               s.id === updatedSession.id 
                 ? { ...s, title: updatedSession.title, model: updatedSession.model, updatedAt: updatedSession.updated_at }
                 : s
             ));
           } else if (payload.eventType === 'DELETE') {
-            const deletedSession = payload.old as any;
+            const deletedSession = payload.old as {
+              id: string;
+            };
             setSessions(prev => prev.filter(s => s.id !== deletedSession.id));
           }
         }
@@ -184,7 +197,14 @@ export function useSupabaseChat() {
           console.log('Chat message change received:', payload);
           
           if (payload.eventType === 'INSERT') {
-            const newMessage = payload.new as any;
+            const newMessage = payload.new as {
+               id: string;
+               role: 'user' | 'assistant';
+               content: string;
+               timestamp: string;
+               model: string;
+               session_id: string;
+             };
             const message: ChatMessage = {
               id: newMessage.id,
               role: newMessage.role,
@@ -207,7 +227,9 @@ export function useSupabaseChat() {
               return session;
             }));
           } else if (payload.eventType === 'DELETE') {
-            const deletedMessage = payload.old as any;
+            const deletedMessage = payload.old as {
+              id: string;
+            };
             setSessions(prev => prev.map(session => ({
               ...session,
               messages: session.messages.filter(m => m.id !== deletedMessage.id)

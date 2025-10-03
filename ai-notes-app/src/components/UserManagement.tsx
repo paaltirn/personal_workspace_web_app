@@ -10,7 +10,6 @@ import {
   UserIcon, 
   ShieldCheckIcon, 
   TrashIcon, 
-  PencilIcon,
   UsersIcon 
 } from '@heroicons/react/24/outline'
 import { UserProfile } from '@/types/user'
@@ -117,7 +116,7 @@ export default function UserManagement() {
     if (isAdmin()) {
       fetchAllUsers()
     }
-  }, [currentProfile])
+  }, [fetchAllUsers, isAdmin])
 
   if (!isAdmin()) {
     return (

@@ -32,7 +32,7 @@ export default function SupabaseNoteList({
 
   // 过滤和排序笔记
   const filteredAndSortedNotes = useMemo(() => {
-    let filtered = notes.filter(note => {
+    const filtered = notes.filter(note => {
       const searchLower = searchTerm.toLowerCase();
       return (
         note.title.toLowerCase().includes(searchLower) ||

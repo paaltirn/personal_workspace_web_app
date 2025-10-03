@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase-client'
 import { userProfileService } from '@/lib/supabase-admin'
-import { UserProfile, CreateUserProfileData, UpdateUserProfileData } from '@/types/user'
+import { UserProfile, UpdateUserProfileData } from '@/types/user'
 
 export function useUserProfile() {
   const [profile, setProfile] = useState<UserProfile | null>(null)
@@ -93,7 +93,7 @@ export function useUserProfile() {
     })
 
     return () => subscription.unsubscribe()
-  }, [])
+  }, [fetchUserProfile])
 
   return {
     profile,

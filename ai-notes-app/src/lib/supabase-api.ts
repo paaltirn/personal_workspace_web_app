@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase-client'
-import { Note, ChatSession, ChatMessage, PromptTemplate, Settings } from '@/types/note'
+import { Note, ChatSession, ChatMessage, Settings } from '@/types/note'
 import { Project, ProjectTask } from '@/types/project'
 import { Todo } from '@/types/todo'
 
