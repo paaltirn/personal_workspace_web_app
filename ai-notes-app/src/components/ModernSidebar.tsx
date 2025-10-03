@@ -171,13 +171,18 @@ export default function ModernSidebar({ currentView, onViewChange }: ModernSideb
                    </p>
                    <p className="text-xs text-gray-500 dark:text-gray-400">
                      {profile?.role === 'admin' ? '管理员' : '普通用户'}
+                     {/* 显示调试信息 */}
+                     <span className="ml-2 text-red-500">({profile?.role || 'undefined'})</span>
                    </p>
-                   {/* 临时调试按钮 */}
+                   {/* 临时调试按钮 - 更明显的样式 */}
                    <button 
-                     onClick={forceRefresh}
-                     className="text-xs text-blue-500 hover:text-blue-700 mt-1"
+                     onClick={() => {
+                       console.log('点击刷新角色按钮, 当前profile:', profile);
+                       forceRefresh();
+                     }}
+                     className="text-xs bg-blue-500 text-white px-2 py-1 rounded mt-1 hover:bg-blue-700"
                    >
-                     刷新角色
+                     🔄 刷新角色
                    </button>
                  </div>
               </motion.div>
