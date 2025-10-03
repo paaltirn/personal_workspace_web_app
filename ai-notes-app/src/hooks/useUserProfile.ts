@@ -107,12 +107,20 @@ export function useUserProfile() {
     return () => subscription.unsubscribe()
   }, [fetchUserProfile]) // 现在可以安全地使用 fetchUserProfile 作为依赖
 
+  // 强制刷新用户档案（清除缓存）
+  const forceRefresh = useCallback(async () => {
+    console.log('forceRefresh: 强制刷新用户档案');
+    setProfile(null) // 清除当前缓存
+    await fetchUserProfile()
+  }, [fetchUserProfile])
+
   return {
     profile,
     loading,
     updateProfile,
     isAdmin,
-    refetch: fetchUserProfile
+    refetch: fetchUserProfile,
+    forceRefresh
   }
 }
 

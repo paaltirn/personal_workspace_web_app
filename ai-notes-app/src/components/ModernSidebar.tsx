@@ -46,7 +46,7 @@ export default function ModernSidebar({ currentView, onViewChange }: ModernSideb
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const supabase = createClient();
-  const { profile, isAdmin } = useUserProfile();
+  const { profile, isAdmin, forceRefresh } = useUserProfile();
 
   useEffect(() => {
     // 获取当前用户信息
@@ -172,6 +172,13 @@ export default function ModernSidebar({ currentView, onViewChange }: ModernSideb
                    <p className="text-xs text-gray-500 dark:text-gray-400">
                      {profile?.role === 'admin' ? '管理员' : '普通用户'}
                    </p>
+                   {/* 临时调试按钮 */}
+                   <button 
+                     onClick={forceRefresh}
+                     className="text-xs text-blue-500 hover:text-blue-700 mt-1"
+                   >
+                     刷新角色
+                   </button>
                  </div>
               </motion.div>
             ) : (
