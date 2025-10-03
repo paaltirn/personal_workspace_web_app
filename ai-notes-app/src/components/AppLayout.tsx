@@ -14,6 +14,7 @@ import ChatInterface from './ChatInterface';
 import ChatList from './ChatList';
 import PomodoroTimer from './PomodoroTimer';
 import ProjectManager from './ProjectManager';
+import UserManagement from './UserManagement';
 import ParticlesBackground from './ParticlesBackground';
 import GlowingBorder from './GlowingBorder';
 import WelcomeScreen from './WelcomeScreen';
@@ -26,7 +27,7 @@ export default function AppLayout() {
     aiModel: 'deepseek/deepseek-chat-v3.1'
   });
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
-  const [currentView, setCurrentView] = useLocalStorage<'notes' | 'todos' | 'chat' | 'stats' | 'settings' | 'pomodoro' | 'projects'>('currentView', 'notes');
+  const [currentView, setCurrentView] = useLocalStorage<'notes' | 'todos' | 'chat' | 'stats' | 'settings' | 'pomodoro' | 'projects' | 'users'>('currentView', 'notes');
   const [chatSessions, setChatSessions, chatSessionsInitialized] = useLocalStorage<ChatSession[]>('chatSessions', []);
   const [promptTemplates, setPromptTemplates, promptTemplatesInitialized] = useLocalStorage<PromptTemplate[]>('promptTemplates', []);
   const [selectedChatSessionId, setSelectedChatSessionId] = useState<string | null>(null);
@@ -223,6 +224,12 @@ export default function AppLayout() {
         <div className="flex-1 relative z-20 p-4">
           <GlowingBorder className="h-full" glow={true}>
             <PomodoroTimer />
+          </GlowingBorder>
+        </div>
+      ) : currentView === 'users' ? (
+        <div className="flex-1 relative z-20 p-4">
+          <GlowingBorder className="h-full" glow={true}>
+            <UserManagement />
           </GlowingBorder>
         </div>
       ) : (

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import {
   HomeIcon,
@@ -12,15 +12,21 @@ import {
   ClockIcon,
   FolderIcon,
   ChevronLeftIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  ArrowRightOnRectangleIcon,
+  UserIcon
 } from '@heroicons/react/24/outline';
+import { createClient } from '@/lib/supabase-client';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { useUserProfile } from '@/hooks/useUserProfile';
 
 interface ModernSidebarProps {
   currentView: string;
-  onViewChange: (view: 'notes' | 'todos' | 'chat' | 'stats' | 'settings' | 'pomodoro' | 'projects') => void;
+  onViewChange: (view: 'notes' | 'todos' | 'chat' | 'stats' | 'settings' | 'pomodoro' | 'projects' | 'users') => void;
 }
 
-type ViewType = 'notes' | 'todos' | 'chat' | 'stats' | 'settings' | 'pomodoro' | 'projects';
+type ViewType = 'notes' | 'todos' | 'chat' | 'stats' | 'settings' | 'pomodoro' | 'projects' | 'users';
 
 const menuItems = [
   { id: 'notes', label: '笔记', icon: DocumentTextIcon },
@@ -29,12 +35,47 @@ const menuItems = [
   { id: 'chat', label: 'AI对话', icon: ChatBubbleLeftRightIcon },
   { id: 'stats', label: '统计', icon: ChartBarIcon },
   { id: 'pomodoro', label: '番茄钟', icon: ClockIcon },
+  { id: 'users', label: '用户管理', icon: UserIcon, adminOnly: true },
   { id: 'settings', label: '设置', icon: Cog6ToothIcon }
 ];
 
 export default function ModernSidebar({ currentView, onViewChange }: ModernSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const supabase = createClient();
+  const { profile, isAdmin } = useUserProfile();
+
+  useEffect(() => {
+    // 获取当前用户信息
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getUser();
+
+    // 监听认证状态变化
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase.auth]);
+
+  const handleSignOut = async () => {
+    setLoading(true);
+    try {
+      await supabase.auth.signOut();
+      router.push('/login');
+      router.refresh();
+    } catch (error) {
+      console.error('退出登录失败:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const sidebarVariants: Variants = {
     expanded: {
@@ -70,7 +111,7 @@ export default function ModernSidebar({ currentView, onViewChange }: ModernSideb
 
   return (
     <motion.div
-      className="relative h-full bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-xl"
+      className="relative h-full bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-xl flex flex-col"
       variants={sidebarVariants}
       animate={isCollapsed ? 'collapsed' : 'expanded'}
       initial="expanded"
@@ -109,11 +150,51 @@ export default function ModernSidebar({ currentView, onViewChange }: ModernSideb
         </button>
       </div>
 
+      {/* User Info */}
+      {user && (
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <AnimatePresence>
+            {!isCollapsed ? (
+              <motion.div
+                variants={itemVariants}
+                initial="expanded"
+                animate="expanded"
+                exit="collapsed"
+                className="flex items-center space-x-3"
+              >
+                <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center">
+                  <UserIcon className="w-4 h-4 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                     {profile?.name || user.email}
+                   </p>
+                   <p className="text-xs text-gray-500 dark:text-gray-400">
+                     {profile?.role === 'admin' ? '管理员' : '普通用户'}
+                   </p>
+                 </div>
+              </motion.div>
+            ) : (
+              <div className="flex justify-center">
+                <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center">
+                  <UserIcon className="w-4 h-4 text-white" />
+                </div>
+              </div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
+
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-2">
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = currentView === item.id;
+          
+          // 如果是管理员专用功能且用户不是管理员，则不显示
+          if (item.adminOnly && !isAdmin()) {
+            return null;
+          }
           
           return (
             <motion.button
@@ -158,6 +239,9 @@ export default function ModernSidebar({ currentView, onViewChange }: ModernSideb
                     }`}
                   >
                     {item.label}
+                    {item.adminOnly && (
+                      <span className="ml-1 text-xs opacity-75">👑</span>
+                    )}
                   </motion.span>
                 )}
               </AnimatePresence>
@@ -171,6 +255,7 @@ export default function ModernSidebar({ currentView, onViewChange }: ModernSideb
                   className="absolute left-full ml-2 px-3 py-2 bg-gray-900 dark:bg-gray-700 text-white text-sm rounded-lg shadow-lg whitespace-nowrap z-50"
                 >
                   {item.label}
+                  {item.adminOnly && <span className="ml-1">👑</span>}
                   <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1 w-2 h-2 bg-gray-900 dark:bg-gray-700 rotate-45" />
                 </motion.div>
               )}
@@ -179,8 +264,41 @@ export default function ModernSidebar({ currentView, onViewChange }: ModernSideb
         })}
       </nav>
 
-      {/* Footer */}
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+      {/* Footer with Sign Out */}
+      <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
+        {user && (
+          <AnimatePresence>
+            {!isCollapsed ? (
+              <motion.div
+                variants={itemVariants}
+                initial="expanded"
+                animate="expanded"
+                exit="collapsed"
+              >
+                <Button
+                  onClick={handleSignOut}
+                  disabled={loading}
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-start text-sm"
+                >
+                  <ArrowRightOnRectangleIcon className="w-4 h-4 mr-2" />
+                  {loading ? '退出中...' : '退出登录'}
+                </Button>
+              </motion.div>
+            ) : (
+              <button
+                onClick={handleSignOut}
+                disabled={loading}
+                className="w-full p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200 flex justify-center"
+                title="退出登录"
+              >
+                <ArrowRightOnRectangleIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              </button>
+            )}
+          </AnimatePresence>
+        )}
+        
         <AnimatePresence>
           {!isCollapsed && (
             <motion.div

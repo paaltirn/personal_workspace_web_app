@@ -1,5 +1,5 @@
-import AppLayout from '@/components/AppLayout';
+import SupabaseAppLayout from '@/components/SupabaseAppLayout';
 
 export default function Home() {
-  return <AppLayout />;
+  return <SupabaseAppLayout />;
 }
