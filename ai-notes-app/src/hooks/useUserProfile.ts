@@ -38,12 +38,17 @@ export function useUserProfile() {
       // 如果用户档案不存在，创建一个默认档案
       if (!userProfile) {
         console.log('fetchUserProfile: 用户档案不存在，创建默认档案');
+        
+        // 检查是否是第一个用户（管理员）
+        const allProfiles = await userProfileService.getAllUserProfiles()
+        const isFirstUser = !allProfiles || allProfiles.length === 0
+        
         const defaultProfile = await userProfileService.createUserProfile(
           user.id,
           user.email || '',
           {
             name: user.email?.split('@')[0] || 'User',
-            role: 'user'
+            role: isFirstUser ? 'admin' : 'user'
           }
         )
         console.log('fetchUserProfile: 创建的默认档案:', defaultProfile);
