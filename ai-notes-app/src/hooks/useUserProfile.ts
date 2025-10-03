@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase-client'
 import { userProfileService } from '@/lib/supabase-admin'
 import { UserProfile, UpdateUserProfileData } from '@/types/user'
@@ -8,14 +8,18 @@ import { UserProfile, UpdateUserProfileData } from '@/types/user'
 export function useUserProfile() {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const supabase = createClient()
 
+  // 简单的错误处理函数，避免依赖 GlobalErrorProvider
+  const handleError = (message: string) => {
+    console.error('UserProfile Error:', message)
+    // 可以在这里添加其他错误处理逻辑，比如显示 toast 等
+  }
+
   // 获取当前用户档案
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = useCallback(async () => {
     try {
       setLoading(true)
-      setError(null)
       console.log('fetchUserProfile: 开始获取用户档案');
 
       const { data: { user } } = await supabase.auth.getUser()
@@ -43,22 +47,25 @@ export function useUserProfile() {
           }
         )
         console.log('fetchUserProfile: 创建的默认档案:', defaultProfile);
-        setProfile(defaultProfile)
+        if (defaultProfile) {
+          setProfile(defaultProfile)
+        } else {
+          handleError('创建用户档案失败，请刷新页面重试')
+        }
       } else {
         setProfile(userProfile)
       }
     } catch (err) {
       console.error('fetchUserProfile: 获取用户档案失败:', err)
-      setError('获取用户档案失败')
+      handleError('获取用户档案失败，请检查网络连接')
     } finally {
       setLoading(false)
     }
-  }
+  }, [supabase])
 
   // 更新用户档案
   const updateProfile = async (updates: UpdateUserProfileData) => {
     try {
-      setError(null)
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) throw new Error('用户未登录')
 
@@ -70,7 +77,7 @@ export function useUserProfile() {
       return false
     } catch (err) {
       console.error('更新用户档案失败:', err)
-      setError('更新用户档案失败')
+      handleError('更新用户档案失败')
       return false
     }
   }
@@ -93,12 +100,11 @@ export function useUserProfile() {
     })
 
     return () => subscription.unsubscribe()
-  }, [fetchUserProfile])
+  }, [fetchUserProfile]) // 现在可以安全地使用 fetchUserProfile 作为依赖
 
   return {
     profile,
     loading,
-    error,
     updateProfile,
     isAdmin,
     refetch: fetchUserProfile

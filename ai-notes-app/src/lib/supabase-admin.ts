@@ -4,7 +4,17 @@ import { UserProfile, CreateUserProfileData, UpdateUserProfileData } from '@/typ
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-export const supabaseAdmin = createClient(supabaseUrl, supabaseAnonKey)
+// 创建一个函数来获取带有用户认证的客户端
+const getSupabaseClient = () => {
+  if (typeof window !== 'undefined') {
+    // 在客户端，使用浏览器的 localStorage 中的认证信息
+    return createClient(supabaseUrl, supabaseAnonKey)
+  }
+  // 在服务端，返回基础客户端
+  return createClient(supabaseUrl, supabaseAnonKey)
+}
+
+export const supabaseAdmin = getSupabaseClient()
 
 // 用户档案管理函数
 export const userProfileService = {
@@ -13,7 +23,10 @@ export const userProfileService = {
     console.log('getCurrentUserProfile: 开始获取用户档案，用户ID:', userId);
     
     try {
-      const { data, error } = await supabaseAdmin
+      // 使用动态获取的客户端
+      const client = getSupabaseClient()
+
+      const { data, error } = await client
         .from('user_profiles')
         .select('*')
         .eq('user_id', userId)
@@ -44,20 +57,27 @@ export const userProfileService = {
 
   // 创建用户档案
   async createUserProfile(userId: string, email: string, profileData: CreateUserProfileData): Promise<UserProfile | null> {
-    console.log('createUserProfile: 开始创建用户档案', { userId, email, profileData });
+    console.log('createUserProfile: 开始创建用户档案，用户ID:', userId);
+    console.log('createUserProfile: 档案数据:', profileData);
     
     try {
-      const { data, error } = await supabaseAdmin
+      // 使用动态获取的客户端
+      const client = getSupabaseClient()
+
+      const newProfile = {
+        user_id: userId,
+        email,
+        name: profileData.name,
+        role: profileData.role || 'user',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }
+
+      console.log('createUserProfile: 准备插入的数据:', newProfile);
+
+      const { data, error } = await client
         .from('user_profiles')
-        .insert({
-          user_id: userId,
-          email,
-          name: profileData.name,
-          role: profileData.role || 'user',
-          bio: profileData.bio,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
+        .insert(newProfile)
         .select()
         .single()
 

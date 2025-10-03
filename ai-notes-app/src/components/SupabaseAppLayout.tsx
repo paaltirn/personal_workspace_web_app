@@ -12,7 +12,9 @@ import SupabaseTodoList from './SupabaseTodoList';
 import SupabaseProjectManager from './SupabaseProjectManager';
 import ChatInterface from './ChatInterface';
 import SupabaseChatApp from './SupabaseChatApp';
+import PomodoroTimer from './PomodoroTimer';
 import Stats from './Stats';
+import GlobalErrorProvider from './GlobalErrorProvider';
 
 export default function SupabaseAppLayout() {
   const [activeTab, setActiveTab] = useState('notes');
@@ -160,6 +162,9 @@ export default function SupabaseAppLayout() {
       case 'chat':
         return <SupabaseChatApp />;
 
+      case 'pomodoro':
+        return <PomodoroTimer />;
+
       case 'prompts':
         return (
           <div className="flex items-center justify-center h-full text-muted-foreground">
@@ -187,14 +192,16 @@ export default function SupabaseAppLayout() {
   };
 
   return (
-    <div className="flex h-screen bg-background">
-      <ModernSidebar 
-        currentView={activeTab} 
-        onViewChange={setActiveTab}
-      />
-      <main className="flex-1 overflow-hidden">
-        {renderContent()}
-      </main>
-    </div>
+    <GlobalErrorProvider>
+      <div className="flex h-screen bg-background">
+        <ModernSidebar 
+          currentView={activeTab} 
+          onViewChange={setActiveTab}
+        />
+        <main className="flex-1 overflow-hidden">
+          {renderContent()}
+        </main>
+      </div>
+    </GlobalErrorProvider>
   );
 }
