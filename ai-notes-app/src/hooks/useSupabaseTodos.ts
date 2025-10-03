@@ -3,9 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Todo } from '@/types/todo';
 import { todosApi } from '@/lib/supabase-api';
-import { createClient } from '@/lib/supabase-client';
-
-const supabase = createClient();
+import { supabase } from '@/lib/supabase';
 
 export function useSupabaseTodos() {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -111,89 +109,85 @@ export function useSupabaseTodos() {
   useEffect(() => {
     loadTodos();
 
-    const setupRealtimeSubscription = async () => {
-      try {
-        const user = await supabase.auth.getUser();
-        if (!user.data.user) return;
+    // 监听待办事项变化
+    const channel = supabase
+      .channel('todos_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'todos'
+        },
+        (payload) => {
+          console.log('Todo change received:', payload);
+          
+          if (payload.eventType === 'INSERT') {
+            const newTodo = payload.new as {
+              id: string;
+              title: string;
+              content: string;
+              completed: boolean;
+              priority: string;
+              due_date: string | null;
+              created_at: string;
+              updated_at: string;
+              user_id: string;
+              project_id: string | null;
+            };
+            const todo: Todo = {
+              id: newTodo.id,
+              title: newTodo.title,
+              completed: newTodo.completed,
+              priority: newTodo.priority as 'low' | 'medium' | 'high',
+              createdAt: newTodo.created_at,
+              updatedAt: newTodo.updated_at,
+              dueDate: newTodo.due_date || undefined,
+              tags: [] // 数据库中没有 tags 字段，使用空数组
+            };
+            setTodos(prev => {
+              if (prev.some(t => t.id === todo.id)) return prev;
+              return [todo, ...prev];
+            });
+          } else if (payload.eventType === 'UPDATE') {
+            const updatedTodo = payload.new as {
+              id: string;
+              title: string;
+              content: string;
+              completed: boolean;
+              priority: string;
+              due_date: string | null;
+              created_at: string;
+              updated_at: string;
+              user_id: string;
+              project_id: string | null;
+            };
+            const todo: Todo = {
+              id: updatedTodo.id,
+              title: updatedTodo.title,
+              completed: updatedTodo.completed,
+              priority: updatedTodo.priority as 'low' | 'medium' | 'high',
+              createdAt: updatedTodo.created_at,
+              updatedAt: updatedTodo.updated_at,
+              dueDate: updatedTodo.due_date || undefined,
+              tags: [] // 数据库中没有 tags 字段，使用空数组
+            };
+            setTodos(prev => prev.map(t => 
+              t.id === todo.id ? todo : t
+            ));
+          } else if (payload.eventType === 'DELETE') {
+            const deletedTodo = payload.old as {
+              id: string;
+            };
+            setTodos(prev => prev.filter(t => t.id !== deletedTodo.id));
+          }
+        }
+      )
+      .subscribe();
 
-        const channel = supabase
-          .channel('todos_changes')
-          .on(
-            'postgres_changes',
-            {
-              event: '*',
-              schema: 'public',
-              table: 'todos',
-              filter: `user_id=eq.${user.data.user.id}`
-            },
-            (payload: {
-              eventType: string;
-              new?: {
-                id: string;
-                title: string;
-                content: string;
-                completed: boolean;
-                priority: string;
-                due_date: string | null;
-                created_at: string;
-                updated_at: string;
-                user_id: string;
-                project_id: string | null;
-              };
-              old?: {
-                id: string;
-              };
-            }) => {
-              console.log('Todo change received:', payload);
-              
-              if (payload.eventType === 'INSERT') {
-                const newTodo = payload.new!;
-                const todo: Todo = {
-                  id: newTodo.id,
-                  title: newTodo.title,
-                  completed: newTodo.completed,
-                  priority: newTodo.priority as 'low' | 'medium' | 'high',
-                  createdAt: newTodo.created_at,
-                  updatedAt: newTodo.updated_at,
-                  dueDate: newTodo.due_date || undefined,
-                  tags: [] // 数据库中没有 tags 字段，使用空数组
-                };
-                setTodos(prev => {
-                  if (prev.some(t => t.id === todo.id)) return prev;
-                  return [todo, ...prev];
-                });
-              } else if (payload.eventType === 'UPDATE') {
-                const updatedTodo = payload.new!;
-                const todo: Todo = {
-                  id: updatedTodo.id,
-                  title: updatedTodo.title,
-                  completed: updatedTodo.completed,
-                  priority: updatedTodo.priority as 'low' | 'medium' | 'high',
-                  createdAt: updatedTodo.created_at,
-                  updatedAt: updatedTodo.updated_at,
-                  dueDate: updatedTodo.due_date || undefined,
-                  tags: [] // 数据库中没有 tags 字段，使用空数组
-                };
-                setTodos(prev => prev.map(t => 
-                  t.id === todo.id ? todo : t
-                ));
-              } else if (payload.eventType === 'DELETE') {
-                const deletedTodo = payload.old!;
-                setTodos(prev => prev.filter(t => t.id !== deletedTodo.id));
-              }
-            }
-          )
-          .subscribe();
-
-        return () => {
-          channel.unsubscribe();
-        };
-      } catch (error) {
-        console.error('设置实时监听失败:', error);
-      }
+    return () => {
+      supabase.removeChannel(channel);
     };
-
-    setupRealtimeSubscription();
   }, [loadTodos]);
 
   return {
